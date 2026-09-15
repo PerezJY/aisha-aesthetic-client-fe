@@ -7,201 +7,12 @@ import {
   Sparkles,
 } from 'lucide-react';
 
-// ==========================================
-// SERVICE IMAGES
-// ==========================================
 import Swal from "sweetalert2";
-import snowWhiteImage from '../../assets/img/snowhite.png';
-import cinderellaImage from '../../assets/img/cinderella.png';
-
-import classicLashesImage from '../../assets/img/classiclash.png';
-import dailyWearLashesImage from '../../assets/img/dailywearlash.png';
-import russianLashesImage from '../../assets/img/russian.png';
-import hybridLashesImage from '../../assets/img/hybridlash.png';
-import volumeLashesImage from '../../assets/img/volumelash.png';
-import wispyLashesImage from '../../assets/img/wispy.png';
-import megaVolumeLashesImage from '../../assets/img/megavolumelash.png';
-
-// ==========================================
-// NAIL SERVICE IMAGES
-// ==========================================
-
-// import manicureImage from '../../assets/img/manicure.png';
-
-import pedicureImage from '../../assets/img/pedicure.png';
-import footSpaImage from '../../assets/img/footspa.png';
-import parafinWaxImage from '../../assets/img/parafinwax.png';
-import footMassageImage from '../../assets/img/footmassage.png';
-
 import { createBooking } from '../../api/appointments.api';
+import { getServices } from '../../api/services.api';
 import { getShopAreas } from '../../api/shopAreas.api';
-import type { ShopArea } from '../../types';
+import type { Service, ShopArea } from '../../types';
 import { getCurrentUser } from '../../utils/auth';
-
-// import gelPolishImage from '../../assets/img/gelpolish.png';
-// import gelRemovalImage from '../../assets/img/gelremoval.png';
-// import softGelNailImage from '../../assets/img/softgelnailext.jpg';
-
-// ==========================================
-// SERVICES
-// ==========================================
-
-const services = [
-  // ==========================================
-  // GLUTA DRIP
-  // ==========================================
-
-  {
-    id: 1,
-    name: 'Snow White Drip',
-    category: 'Gluta Drip',
-    description:
-      'Premium intravenous formula with glutathione, Vitamin C, immune boosters, and antioxidants.',
-    price: 1500,
-    duration: '60 mins',
-    image: snowWhiteImage,
-  },
-
-  {
-    id: 2,
-    name: 'Cinderella Drip',
-    category: 'Gluta Drip',
-    description:
-      'Beauty and vitality formula with glutathione, Vitamin C, beauty nutrients, and detox support.',
-    price: 1500,
-    duration: '60 mins',
-    image: cinderellaImage,
-  },
-
-  // ==========================================
-  // EYELASH EXTENSIONS
-  // ==========================================
-
-  {
-    id: 3,
-    name: 'Classic Lashes',
-    category: 'Eyelash Extensions',
-    description:
-      'Natural, clean, and timeless lash look.',
-    price: 199,
-    duration: '60 mins',
-    image: classicLashesImage,
-  },
-
-  {
-    id: 4,
-    name: 'Daily Wear Lashes',
-    category: 'Eyelash Extensions',
-    description:
-      'Light and natural lashes perfect for everyday wear.',
-    price: 349,
-    duration: '60 mins',
-    image: dailyWearLashesImage,
-  },
-
-  {
-    id: 5,
-    name: 'Russian Lashes',
-    category: 'Eyelash Extensions',
-    description:
-      'More volume and definition with fine, lightweight lash fans.',
-    price: 499,
-    duration: '75 mins',
-    image: russianLashesImage,
-  },
-
-  {
-    id: 6,
-    name: 'Hybrid Lashes',
-    category: 'Eyelash Extensions',
-    description:
-      'A beautiful blend of classic and volume lashes.',
-    price: 799,
-    duration: '75 mins',
-    image: hybridLashesImage,
-  },
-
-  {
-    id: 7,
-    name: 'Volume Lashes',
-    category: 'Eyelash Extensions',
-    description:
-      'Soft, fluffy lashes for a fuller and glamorous look.',
-    price: 999,
-    duration: '90 mins',
-    image: volumeLashesImage,
-  },
-
-  {
-    id: 8,
-    name: 'Wispy Lashes',
-    category: 'Eyelash Extensions',
-    description:
-      'Textured, trendy, and glamorous wispy lash style.',
-    price: 1299,
-    duration: '90 mins',
-    image: wispyLashesImage,
-  },
-
-  {
-    id: 9,
-    name: 'Mega Volume Lashes',
-    category: 'Eyelash Extensions',
-    description:
-      'Ultra-full, bold, and dramatic lashes for a statement look.',
-    price: 1499,
-    duration: '120 mins',
-    image: megaVolumeLashesImage,
-  },
-
-  // ==========================================
-  // NAIL SERVICES
-  // ==========================================
-
-  {
-    id: 11,
-    name: 'Pedicure',
-    category: 'Nail Services',
-    description:
-      'Relaxing foot and nail care for clean and well-groomed feet.',
-    price: 149,
-    duration: '45 mins',
-    image: pedicureImage,
-  },
-
-  {
-    id: 12,
-    name: 'Foot Spa',
-    category: 'Nail Services',
-    description:
-      'Relaxing foot treatment designed to refresh and pamper your feet.',
-    price: 199,
-    duration: '60 mins',
-    image: footSpaImage,
-  },
-
-  {
-    id: 13,
-    name: 'Parafin Wax',
-    category: 'Nail Services',
-    description:
-      'Warm paraffin treatment to help soften and moisturize the skin.',
-    price: 149,
-    duration: '30 mins',
-    image: parafinWaxImage,
-  },
-
-  {
-    id: 14,
-    name: 'Foot Massage',
-    category: 'Nail Services',
-    description:
-      'Relaxing foot massage to help ease tension and refresh tired feet.',
-    price: 149,
-    duration: '30 mins',
-    image: footMassageImage,
-  },
-];
 
 // ==========================================
 // TIME SLOTS
@@ -235,6 +46,10 @@ function Booking() {
   const [selectedTime, setSelectedTime] =
     useState<string>('');
 
+  const [catalog, setCatalog] = useState<Service[]>([]);
+  const [isLoadingServices, setIsLoadingServices] = useState(true);
+  const [servicesError, setServicesError] = useState('');
+
   // ==========================================
   // SHOP AREAS
   // ==========================================
@@ -254,6 +69,42 @@ function Booking() {
 
   const [isSubmitting, setIsSubmitting] =
     useState<boolean>(false);
+
+  const services = catalog.filter((item) => (item.type || 'Service') === 'Service');
+  const products = catalog.filter((item) => item.type === 'Product');
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
+  const getImageUrl = (image?: string | null) => {
+    if (!image) return '';
+    if (image.startsWith('http://') || image.startsWith('https://')) return image;
+    return `${apiBaseUrl}${image.startsWith('/') ? '' : '/'}${image}`;
+  };
+
+  useEffect(() => {
+    const loadServices = async () => {
+      try {
+        setIsLoadingServices(true);
+        setServicesError('');
+        const data = await getServices();
+        const activeItems = Array.isArray(data) ? data : [];
+        setCatalog(activeItems);
+        setSelectedService((current) =>
+          activeItems.some((item) => (item.type || 'Service') === 'Service' && item.id === current)
+            ? current
+            : null
+        );
+      } catch (error) {
+        console.error('Failed to load services:', error);
+        setCatalog([]);
+        setSelectedService(null);
+        setServicesError('There was a problem loading the available services. Please try again later.');
+      } finally {
+        setIsLoadingServices(false);
+      }
+    };
+
+    void loadServices();
+  }, []);
 
   // ==========================================
   // LOAD SHOP AREAS
@@ -576,7 +427,19 @@ function Booking() {
               "
             >
 
-              {services.map((item) => {
+              {isLoadingServices && (
+                <p className="col-span-full rounded-xl bg-white p-6 text-center text-sm text-[#92737c]">Loading available services...</p>
+              )}
+
+              {!isLoadingServices && servicesError && (
+                <p className="col-span-full rounded-xl bg-white p-6 text-center text-sm text-red-600">{servicesError}</p>
+              )}
+
+              {!isLoadingServices && !servicesError && services.length === 0 && (
+                <p className="col-span-full rounded-xl bg-white p-6 text-center text-sm text-[#92737c]">No active services are available for booking.</p>
+              )}
+
+              {!isLoadingServices && !servicesError && services.map((item) => {
 
                 const active =
                   selectedService === item.id;
@@ -622,18 +485,15 @@ function Booking() {
                       "
                     >
 
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="
-                          h-full
-                          w-full
-                          object-cover
-                          transition
-                          duration-300
-                          group-hover:scale-105
-                        "
-                      />
+                      {getImageUrl(item.image) ? (
+                        <img
+                          src={getImageUrl(item.image)}
+                          alt={item.name}
+                          className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-[#df7f98]"><Sparkles size={30} /></div>
+                      )}
 
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
 
@@ -695,6 +555,27 @@ function Booking() {
               })}
 
             </div>
+
+            {!isLoadingServices && products.length > 0 && (
+              <div className="mt-8 border-t border-pink-100 pt-6">
+                <h3 className="mb-1 font-bold text-[#4b343b]">Products</h3>
+                <p className="mb-4 text-xs text-[#92737c]">Available products are shown for reference and cannot be booked as appointments.</p>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {products.map((item) => (
+                    <div key={item.id} className="flex gap-4 rounded-2xl border border-pink-100 bg-white p-3">
+                      <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-[#fff4f6]">
+                        {getImageUrl(item.image) ? <img src={getImageUrl(item.image)} alt={item.name} className="h-full w-full object-cover" /> : <div className="h-full w-full" />}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-bold text-[#4b343b]">{item.name}</p>
+                        <p className="mt-1 text-xs text-[#92737c]">{item.category}</p>
+                        <p className="mt-2 font-bold text-[#c18c2d]">₱{item.price.toLocaleString()}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
           </section>
 
@@ -1004,16 +885,15 @@ function Booking() {
 
               <div className="mb-5 overflow-hidden rounded-2xl border border-pink-100 bg-[#fffafb]">
 
-                <img
-                  src={service.image}
-                  alt={service.name}
-                  className="
-                    h-36
-                    w-full
-                    object-cover
-                    sm:h-40
-                  "
-                />
+                {getImageUrl(service.image) ? (
+                  <img
+                    src={getImageUrl(service.image)}
+                    alt={service.name}
+                    className="h-36 w-full object-cover sm:h-40"
+                  />
+                ) : (
+                  <div className="flex h-36 items-center justify-center bg-[#fff4f6] text-[#df7f98] sm:h-40"><Sparkles size={34} /></div>
+                )}
 
                 <div className="p-4">
 
