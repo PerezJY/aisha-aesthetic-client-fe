@@ -44,7 +44,7 @@ export default function ArchivesPage() {
       </div>}
       {!!rows.length && <TablePagination component="div" rowsPerPageOptions={[8]} rowsPerPage={8} count={rows.length} page={currentPage} onPageChange={(_, value) => setPage(value)} />}
     </section>
-    <p className="flex items-center gap-2 text-xs text-[#967f87]"><ShieldCheck size={16} />Only admins can view and restore archived records.</p>
+    
     <Dialog open={!!target} onClose={() => { if (!restoring) setTarget(null); }} fullWidth maxWidth="xs" aria-labelledby="restore-title"><DialogTitle id="restore-title">Restore this record?</DialogTitle><DialogContent><p className="text-sm text-[#876f77]"><strong className="text-[#49343a]">{target?.name}</strong> will return to {target ? labels[target.entity].toLowerCase() : 'its original list'}. Its previous status and linked records will be preserved.</p>{error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}</DialogContent><DialogActions sx={{ p: 2 }}><Button disabled={restoring} onClick={() => setTarget(null)}>Cancel</Button><Button variant="contained" disabled={restoring} startIcon={restoring ? <CircularProgress size={15} color="inherit" /> : <ArrowUpRight size={16} />} onClick={async () => {
       if (!target) return; setRestoring(true); setError('');
       try { await restoreArchive(target); setRecords(items => items.filter(item => item.entity !== target.entity || item.id !== target.id)); setSuccess(`${target.name} was restored successfully.`); setTarget(null); }

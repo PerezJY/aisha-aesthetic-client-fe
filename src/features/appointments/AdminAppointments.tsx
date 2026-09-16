@@ -512,7 +512,7 @@ function AdminAppointments() {
 
       Swal.fire({
         icon: undefined,
-        title: `Status History — ${customerLabel}`,
+        title: `Status History  ${customerLabel}`,
         html: rowsHtml,
         confirmButtonText: 'Close',
         confirmButtonColor: '#df7f98',

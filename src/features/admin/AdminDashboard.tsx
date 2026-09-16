@@ -445,7 +445,7 @@ function AdminDashboard() {
           </h1>
 
           <p className="page-subtitle">
-            Overview of customer appointments and bookings.
+            Overview of customer appointments and bookings
           </p>
         </div>
 

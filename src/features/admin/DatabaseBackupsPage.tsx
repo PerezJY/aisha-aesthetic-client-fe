@@ -85,7 +85,7 @@ export default function DatabaseBackupsPage() {
         <div>
           <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#ae7284]">Data & recovery</p>
           <h1 className="page-title">Database Backups</h1>
-          <p className="page-subtitle">A little peace of mind for every appointment, account, and record.</p>
+          <p className="page-subtitle">Keeping your data safe and protected</p>
         </div>
         <Button variant="contained" startIcon={busy ? <CircularProgress size={16} color="inherit" /> : <Plus size={18} />}
           onClick={() => void handleCreate()} disabled={loading || busy || !status} sx={{ mt: { xs: 0, sm: 2 }, px: 2.5, py: 1.4 }}>
@@ -107,7 +107,7 @@ export default function DatabaseBackupsPage() {
                 <span className={`h-1.5 w-1.5 rounded-full ${status?.lastError ? 'bg-amber-500' : status?.enabled ? 'bg-[#6e967c]' : 'bg-[#ad929b]'}`} />{statusLabel}
               </span>}
               <h2 className="mt-2 text-xl font-semibold tracking-tight sm:text-2xl">Recovery starts with a saved copy.</h2>
-              <p className="mt-2 max-w-md text-sm leading-relaxed text-[#876f77]">Create a snapshot now, or let scheduled backups take care of your database.</p>
+              <p className="mt-2 max-w-md text-sm leading-relaxed text-[#876f77]">Your data stays safe with regular backups</p>
               <div className="mt-5 flex flex-wrap items-center gap-2 text-xs text-[#876f77]">
                 <Clock3 size={14} aria-hidden="true" /><span>Latest backup</span>
                 {loading ? <Skeleton width={130} /> : <span className="font-medium text-[#60434e]">{latest ? `${dateLabel(latest.createdAt)} · ${timeLabel(latest.createdAt)}` : status ? 'No backups yet' : 'Unavailable'}</span>}
@@ -218,9 +218,9 @@ export default function DatabaseBackupsPage() {
           <Info size={19} className="shrink-0 text-[#ba975d]" /><span className="flex-1">A safer place for your backup<span className="mt-1 block text-xs font-normal text-[#998873]">Keep an extra copy outside this server.</span></span><ChevronDown size={17} className="text-[#998873] transition-transform group-open:rotate-180" />
         </summary>
         <div className="space-y-3 border-t border-[#f1e8da] px-5 py-4 text-xs leading-relaxed text-[#998873]">
-          <p>Download a copy to a separate device or secure cloud storage. Backup files contain private customer and account data, so store them somewhere only authorized people can access.</p>
-          <p>Database backups include your records. Uploaded photos are stored separately and need their own backup.</p>
-          <p>To restore a backup, contact your server administrator and follow the recovery instructions in the backend README.</p>
+          <p>Keep a copy of your backup in a secure location, such as another device or cloud storage. Make sure only authorized people can access it</p>
+          <p>Your database backup includes customer and account records. Uploaded photos are stored separately and need to be backed up separately</p>
+          <p>Need to restore a backup? Contact your server administrator and follow the recovery steps in the backend README</p>
         </div>
       </details>
     </div>

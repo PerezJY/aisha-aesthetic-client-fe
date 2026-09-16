@@ -311,8 +311,7 @@ function Signin() {
             </h1>
 
             <p className="mt-4 max-w-sm text-sm leading-6 text-[#80656d]">
-              Easily manage your appointments, services, reminders,
-              and beauty journey.
+              Beauty begins with self-care
             </p>
 
           </div>
@@ -364,7 +363,7 @@ function Signin() {
             </h2>
 
             <p className="mt-2 text-sm text-[#92737c]">
-              Enter your account details to continue.
+            Let’s continue your self-care journey.
             </p>
 
           </div>
