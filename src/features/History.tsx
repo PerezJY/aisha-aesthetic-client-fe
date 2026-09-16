@@ -54,12 +54,12 @@ export default function History() {
 
   const history = customerId ? customerHistory(appointments, customerId, now) : [];
   return <div className="min-w-0 bg-[#fff8fa] p-4 md:p-6 lg:p-8">
-    <div className="mb-6 flex items-start justify-between gap-4">
-      <div>
+    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="min-w-0">
         <h1 className="page-title">Appointment History</h1>
         <p className="page-subtitle">Your past appointments, including completed, cancelled, and no-show bookings.</p>
       </div>
-      <button disabled={loading} onClick={() => { setLoading(true); setRefreshKey(key => key + 1); }} className="flex items-center gap-2 text-sm font-semibold text-[#d77992] disabled:opacity-50"><RefreshCw size={17} />Refresh</button>
+      <button disabled={loading} aria-busy={loading} aria-label={loading ? 'Refreshing appointment history' : 'Refresh appointment history'} onClick={() => { setLoading(true); setRefreshKey(key => key + 1); }} className="inline-flex w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-pink-200 bg-white px-4 py-2 text-sm font-semibold text-[#d77992] transition hover:bg-[#fff4f7] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:border-0 sm:bg-transparent sm:px-0 sm:py-1"><RefreshCw size={17} className={loading ? 'animate-spin' : ''} />Refresh</button>
     </div>
     {error && <p role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error} Use Refresh to try again.</p>}
     {loading ? <p role="status" className="text-[#92737c]">Loading appointment history…</p> : !error && history.length === 0 ?
@@ -72,20 +72,20 @@ export default function History() {
       {history.map(item => {
         const status = item.status.trim().toLowerCase();
         const price = Number(item.price);
-        return <article key={item.id} className="rounded-2xl border border-pink-100 bg-white p-5 shadow-sm">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h2 className="font-bold text-[#4b343b]">{item.serviceName}</h2>
-              <p className="mt-2 flex items-center gap-2 text-sm text-[#80656d]"><CalendarDays size={15} />{item.date || 'Date not recorded'}</p>
-              <p className="mt-2 flex items-center gap-2 text-sm text-[#80656d]"><Clock3 size={15} />{item.time || 'Time not recorded'}</p>
-              <p className="mt-2 flex items-center gap-2 text-sm text-[#80656d]"><MapPin size={15} />{item.area || 'Branch not recorded'}</p>
-              {item.employeeName && <p className="mt-2 text-sm text-[#80656d]">Employee: {item.employeeName}</p>}
+        return <article key={item.id} className="min-w-0 rounded-2xl border border-pink-100 bg-white p-5 shadow-sm">
+          <div className="flex min-w-0 items-start justify-between gap-3 sm:gap-4">
+            <div className="min-w-0 flex-1">
+              <h2 className="break-words font-bold text-[#4b343b]">{item.serviceName}</h2>
+              <p className="mt-2 flex min-w-0 items-start gap-2 break-words text-sm text-[#80656d]"><CalendarDays size={15} className="mt-0.5 shrink-0" />{item.date || 'Date not recorded'}</p>
+              <p className="mt-2 flex min-w-0 items-start gap-2 break-words text-sm text-[#80656d]"><Clock3 size={15} className="mt-0.5 shrink-0" />{item.time || 'Time not recorded'}</p>
+              <p className="mt-2 flex min-w-0 items-start gap-2 break-words text-sm text-[#80656d]"><MapPin size={15} className="mt-0.5 shrink-0" />{item.area || 'Branch not recorded'}</p>
+              {item.employeeName && <p className="mt-2 break-words text-sm text-[#80656d]">Employee: {item.employeeName}</p>}
             </div>
-            <span className="shrink-0 text-sm font-bold text-[#c18c2d]">{item.price != null && Number.isFinite(price) ? new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(price) : 'Price unavailable'}</span>
+            <span className="max-w-[42%] shrink-0 break-words text-right text-sm font-bold text-[#c18c2d]">{item.price != null && Number.isFinite(price) ? new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(price) : 'Price unavailable'}</span>
           </div>
-          <div className="mt-5 flex items-center justify-between border-t border-pink-100 pt-4">
-            <span className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${statusStyles[status] || 'bg-gray-100 text-gray-700'}`}>{status || 'Status not recorded'}</span>
-            <span className="text-xs text-[#92737c]">Booking #{item.id}</span>
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-pink-100 pt-4">
+            <span className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold capitalize ${statusStyles[status] || 'bg-gray-100 text-gray-700'}`}>{status || 'Status not recorded'}</span>
+            <span className="shrink-0 whitespace-nowrap text-xs text-[#92737c]">Booking #{item.id}</span>
           </div>
           {item.previousAppointmentId && <p className="mt-3 text-sm text-[#80656d]">Follow-up to appointment #{item.previousAppointmentId}</p>}
           {status === 'completed' && <p className="mt-3 text-sm text-[#80656d]">Your follow-up will be arranged by our staff. You’ll receive a notification and email when it is scheduled.</p>}
