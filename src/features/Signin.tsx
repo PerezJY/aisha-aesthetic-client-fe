@@ -23,14 +23,14 @@ function Signin() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [showPassword, setShowPassword] =
-    useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
-  const [termsChallenge, setTermsChallenge] = useState<StaffTermsChallenge | null>(null);
+  const [termsChallenge, setTermsChallenge] =
+    useState<StaffTermsChallenge | null>(null);
 
   const handleSubmit = async (
     event: React.FormEvent<HTMLFormElement>
@@ -41,18 +41,23 @@ function Signin() {
 
     try {
       const data = await login({ email, password });
+
       if (data.termsRequired) {
         setTermsChallenge(data);
         setPassword('');
         return;
       }
+
       const currentUser = normalizeCurrentUser(data.user);
 
       saveCurrentUser(currentUser);
       navigate(getRoleDestination(currentUser), { replace: true });
     } catch (submitError) {
       const message =
-        submitError instanceof Error ? submitError.message : 'Login failed.';
+        submitError instanceof Error
+          ? submitError.message
+          : 'Login failed.';
+
       setError(message);
     } finally {
       setLoading(false);
@@ -61,26 +66,59 @@ function Signin() {
 
   const handleAcceptTerms = async () => {
     if (!termsChallenge) return;
+
     setLoading(true);
     setError('');
+
     try {
       const data = await acceptStaffTerms(termsChallenge);
+
       const currentUser = normalizeCurrentUser(data.user);
+
       saveCurrentUser(currentUser);
       navigate(getRoleDestination(currentUser), { replace: true });
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Unable to save your agreement.');
-    } finally { setLoading(false); }
+      setError(
+        reason instanceof Error
+          ? reason.message
+          : 'Unable to save your agreement.'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (forgotPassword) return <ForgotPassword initialEmail={email} onBack={() => { setForgotPassword(false); setPassword(''); setError(''); }} />;
+  if (forgotPassword) {
+    return (
+      <ForgotPassword
+        initialEmail={email}
+        onBack={() => {
+          setForgotPassword(false);
+          setPassword('');
+          setError('');
+        }}
+      />
+    );
+  }
 
-  if (termsChallenge) return <StaffTermsAgreement key={termsChallenge.termsToken}
-    challenge={termsChallenge} onAccept={() => void handleAcceptTerms()}
-    onCancel={() => { setTermsChallenge(null); setError(''); }} loading={loading} error={error} />;
+  if (termsChallenge) {
+    return (
+      <StaffTermsAgreement
+        key={termsChallenge.termsToken}
+        challenge={termsChallenge}
+        onAccept={() => void handleAcceptTerms()}
+        onCancel={() => {
+          setTermsChallenge(null);
+          setError('');
+        }}
+        loading={loading}
+        error={error}
+      />
+    );
+  }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#fff8fa] px-4 py-8">
+    <div className="flex min-h-screen items-center justify-center bg-[#fff8fa] px-4 py-6 sm:py-8">
 
       {/* ==========================================
           MAIN CARD
@@ -109,14 +147,16 @@ function Signin() {
         <div
           className="
             relative
-            hidden
-            min-h-[600px]
+            flex
+            h-[220px]
+            flex-col
+            justify-between
             overflow-hidden
             bg-[#f8dce3]
             signin-image-float
-            md:flex
-            md:flex-col
-            md:justify-between
+            sm:h-[260px]
+            md:h-auto
+            md:min-h-[600px]
           "
         >
 
@@ -124,7 +164,18 @@ function Signin() {
               BEAUTY IMAGE
           ======================================== */}
 
-          <div className="signin-glow absolute -inset-8 rounded-[3rem] bg-[#f8dce3]/70 blur-2xl" aria-hidden="true" />
+          <div
+            className="
+              signin-glow
+              absolute
+              -inset-8
+              rounded-[3rem]
+              bg-[#f8dce3]/70
+              blur-2xl
+            "
+            aria-hidden="true"
+          />
+
           <img
             src={beautyWoman}
             alt="AishaEsthetics Beauty Treatment"
@@ -139,13 +190,47 @@ function Signin() {
             "
           />
 
-
           {/* ========================================
               IMAGE OVERLAY
           ======================================== */}
 
-          <span className="signin-accent-gold absolute right-10 top-24 h-6 w-6 rounded-full bg-[#e7c67b]/70 shadow-lg" aria-hidden="true" />
-          <span className="signin-accent-pink absolute bottom-28 left-12 h-3.5 w-3.5 rounded-full bg-[#d77992]/60 shadow-md" aria-hidden="true" />
+          <span
+            className="
+              signin-accent-gold
+              absolute
+              right-6
+              top-12
+              h-5
+              w-5
+              rounded-full
+              bg-[#e7c67b]/70
+              shadow-lg
+              md:right-10
+              md:top-24
+              md:h-6
+              md:w-6
+            "
+            aria-hidden="true"
+          />
+
+          <span
+            className="
+              signin-accent-pink
+              absolute
+              bottom-12
+              left-8
+              h-3
+              w-3
+              rounded-full
+              bg-[#d77992]/60
+              shadow-md
+              md:bottom-28
+              md:left-12
+              md:h-3.5
+              md:w-3.5
+            "
+            aria-hidden="true"
+          />
 
           <div
             className="
@@ -158,29 +243,57 @@ function Signin() {
             "
           />
 
-
           {/* ========================================
               TOP LOGO
           ======================================== */}
 
-          <div className="signin-fade-up relative z-10 p-8 lg:p-10">
-            <BrandLogo className="h-32 w-32 lg:h-40 lg:w-40" />
-
-            
-
+          <div
+            className="
+              signin-fade-up
+              relative
+              z-10
+              p-5
+              sm:p-6
+              md:p-8
+              lg:p-10
+            "
+          >
+            <BrandLogo
+              className="
+                h-20
+                w-20
+                sm:h-24
+                sm:w-24
+                md:h-32
+                md:w-32
+                lg:h-40
+                lg:w-40
+              "
+            />
           </div>
-
 
           {/* ========================================
               CENTER CONTENT
+              Hidden on mobile for cleaner layout
           ======================================== */}
 
-          <div className="signin-fade-up relative z-10 px-8 pb-10 [animation-delay:180ms] lg:px-10">
+          <div
+            className="
+              signin-fade-up
+              relative
+              z-10
+              hidden
+              px-8
+              pb-10
+              [animation-delay:180ms]
+              md:block
+              lg:px-10
+            "
+          >
 
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#b88a2c]">
               AishaEsthetics
             </p>
-
 
             <h1
               className="
@@ -197,7 +310,6 @@ function Signin() {
               with self-care.
             </h1>
 
-
             <p className="mt-4 max-w-sm text-sm leading-6 text-[#80656d]">
               Easily manage your appointments, services, reminders,
               and beauty journey.
@@ -205,17 +317,27 @@ function Signin() {
 
           </div>
 
-
           {/* ========================================
               BOTTOM TEXT
+              Hidden on mobile
           ======================================== */}
 
-          <div className="signin-fade-up relative z-10 px-8 pb-8 [animation-delay:300ms] lg:px-10">
-
+          <div
+            className="
+              signin-fade-up
+              relative
+              z-10
+              hidden
+              px-8
+              pb-8
+              [animation-delay:300ms]
+              md:block
+              lg:px-10
+            "
+          >
             <p className="text-xs text-[#9d7c85]">
               Beauty • Aesthetics • Wellness
             </p>
-
           </div>
 
         </div>
@@ -225,37 +347,13 @@ function Signin() {
             RIGHT SIGN IN PANEL
         ========================================== */}
 
-        <div className="p-6 sm:p-10">
-
-          {/* ========================================
-              MOBILE LOGO
-          ======================================== */}
-
-          <div className="md:hidden">
-
-            <div
-              className="signin-fade-up
-                flex
-                h-20
-                w-20
-                items-center
-                justify-center
-                rounded-2xl
-                bg-[#fff2df]
-                text-[#c18c2d]
-              "
-            >
-              <BrandLogo className="h-20 w-20" />
-            </div>
-
-          </div>
-
+        <div className="p-5 sm:p-8 md:p-10">
 
           {/* ========================================
               HEADER
           ======================================== */}
 
-          <div className="signin-fade-up mt-8 [animation-delay:120ms]">
+          <div className="signin-fade-up [animation-delay:120ms]">
 
             <p className="text-sm font-medium text-[#b88a2c]">
               Welcome Back
@@ -278,14 +376,51 @@ function Signin() {
 
           <form
             onSubmit={handleSubmit}
-            className="signin-fade-up mt-8 space-y-5 [animation-delay:220ms]"
+            className="
+              signin-fade-up
+              mt-7
+              space-y-5
+              [animation-delay:220ms]
+              sm:mt-8
+            "
           >
-            {location.state?.signupSuccess && <p role="status" className="rounded-xl bg-green-50 p-3 text-sm text-green-700">Your customer account has been created. Sign in below.</p>}
+
+            {/* SUCCESS MESSAGE */}
+
+            {location.state?.signupSuccess && (
+              <p
+                role="status"
+                className="
+                  rounded-xl
+                  bg-green-50
+                  p-3
+                  text-sm
+                  text-green-700
+                "
+              >
+                Your customer account has been created. Sign in below.
+              </p>
+            )}
+
+            {/* ERROR MESSAGE */}
+
             {error && (
-              <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              <div
+                className="
+                  rounded-xl
+                  border
+                  border-red-200
+                  bg-red-50
+                  px-3
+                  py-2
+                  text-sm
+                  text-red-700
+                "
+              >
                 {error}
               </div>
             )}
+
 
             {/* ======================================
                 EMAIL
@@ -295,11 +430,16 @@ function Signin() {
 
               <label
                 htmlFor="email"
-                className="mb-2 block text-sm font-medium text-[#5c444b]"
+                className="
+                  mb-2
+                  block
+                  text-sm
+                  font-medium
+                  text-[#5c444b]
+                "
               >
                 Email Address
               </label>
-
 
               <div className="relative">
 
@@ -314,14 +454,17 @@ function Signin() {
                   "
                 />
 
-
                 <input
                   id="email"
                   type="email"
                   placeholder="you@email.com"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
-                  className="input-field w-full pl-11"
+                  className="
+                    input-field
+                    w-full
+                    pl-11
+                  "
                   required
                 />
 
@@ -338,11 +481,16 @@ function Signin() {
 
               <label
                 htmlFor="password"
-                className="mb-2 block text-sm font-medium text-[#5c444b]"
+                className="
+                  mb-2
+                  block
+                  text-sm
+                  font-medium
+                  text-[#5c444b]
+                "
               >
                 Password
               </label>
-
 
               <div className="relative">
 
@@ -357,14 +505,9 @@ function Signin() {
                   "
                 />
 
-
                 <input
                   id="password"
-                  type={
-                    showPassword
-                      ? 'text'
-                      : 'password'
-                  }
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="Enter your password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
@@ -377,16 +520,11 @@ function Signin() {
                   required
                 />
 
-
                 {/* SHOW PASSWORD */}
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowPassword(
-                      !showPassword
-                    )
-                  }
+                  onClick={() => setShowPassword(!showPassword)}
                   className="
                     absolute
                     right-4
@@ -443,7 +581,17 @@ function Signin() {
 
             <button
               type="submit"
-              className="primary-btn w-full shadow-md transition duration-300 hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-70"
+              className="
+                primary-btn
+                w-full
+                shadow-md
+                transition
+                duration-300
+                hover:-translate-y-0.5
+                hover:shadow-lg
+                disabled:cursor-not-allowed
+                disabled:opacity-70
+              "
               disabled={loading}
             >
               {loading ? 'Signing in...' : 'Sign In'}
@@ -452,15 +600,19 @@ function Signin() {
           </form>
 
 
-
-
-
           {/* ========================================
               SIGN UP
           ======================================== */}
 
-          <p className="mt-7 text-center text-sm text-[#92737c]">
-
+          <p
+            className="
+              mt-6
+              text-center
+              text-sm
+              text-[#92737c]
+              sm:mt-7
+            "
+          >
             Don't have an account?{' '}
 
             <Link
