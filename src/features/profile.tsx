@@ -10,6 +10,7 @@ import {
   ChevronRight,
   LogOut,
   Camera,
+  LoaderCircle,
   X,
   Check,
   Eye,
@@ -30,6 +31,7 @@ const API_BASE_URL =
 const Profile: React.FC = () => {
   const navigate = useNavigate();
   const uploadFileRef = useRef<HTMLInputElement>(null);
+  const [isUploadingProfileImage, setIsUploadingProfileImage] = useState(false);
 
   const [profile, setProfile] = useState<UserProfile>({
     id: 0,
@@ -142,6 +144,10 @@ const Profile: React.FC = () => {
   */
 
   const handleUploadProfile = () => {
+    if (isUploadingProfileImage) {
+      return;
+    }
+
     uploadFileRef.current?.click();
   };
 
@@ -193,6 +199,8 @@ const Profile: React.FC = () => {
     formData.append("image", file);
 
     try {
+      setIsUploadingProfileImage(true);
+
       const response = await authFetch(
         `${API_BASE_URL}/api/users/${profile.id}/profile-image`,
         {
@@ -288,6 +296,7 @@ const Profile: React.FC = () => {
         confirmButtonColor: "#b96d83",
       });
     } finally {
+      setIsUploadingProfileImage(false);
       event.target.value = "";
     }
   };
@@ -533,7 +542,7 @@ const Profile: React.FC = () => {
 
         {/* PROFILE HERO */}
         <section className="mb-6 text-center">
-          <div className="relative mx-auto mb-3 h-[92px] w-[92px]">
+          <div className="relative mx-auto mb-3 h-[92px] w-[92px]" aria-busy={isUploadingProfileImage}>
             <div className="flex h-[92px] w-[92px] items-center justify-center overflow-hidden rounded-full border-[3px] border-white bg-gradient-to-br from-[#f7e9ed] to-[#efd5dc] text-[#a9687d] shadow-[0_5px_18px_rgba(80,44,56,0.12)]">
               <img
                 src={
@@ -546,12 +555,21 @@ const Profile: React.FC = () => {
               />
             </div>
 
+            {isUploadingProfileImage && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-full bg-[#5b3e45]/55 text-white" role="status" aria-live="polite">
+                <LoaderCircle size={24} className="animate-spin" aria-hidden="true" />
+                <span className="sr-only">Uploading profile picture...</span>
+              </div>
+            )}
+
             {/* CAMERA BUTTON */}
             <button
               type="button"
               onClick={handleUploadProfile}
-              className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-white text-[#a9687d] shadow-sm transition hover:bg-pink-50"
+              disabled={isUploadingProfileImage}
+              className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-white text-[#a9687d] shadow-sm transition hover:bg-pink-50 disabled:cursor-not-allowed disabled:opacity-50"
               aria-label="Change profile picture"
+              aria-disabled={isUploadingProfileImage}
             >
               <Camera size={13} strokeWidth={2} />
             </button>
