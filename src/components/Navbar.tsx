@@ -185,7 +185,7 @@ function Navbar({
             <Bell size={21} />
 
             {/* Notification dot */}
-            {unreadCount > 0 && <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-[#df7f98] px-1 text-center text-xs font-bold text-white">{unreadCount > 99 ? '99+' : unreadCount}</span>}
+            {unreadCount > 0 && <span className="absolute -right-1 -top-1 inline-flex min-w-5 items-center justify-center whitespace-nowrap rounded-full bg-[#df7f98] px-1 text-center text-xs font-bold leading-5 text-white">{unreadCount > 99 ? '99+' : unreadCount}</span>}
           </Link>
 
           {/* =================================================

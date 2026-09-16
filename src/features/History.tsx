@@ -88,7 +88,7 @@ export default function History() {
             <span className="text-xs text-[#92737c]">Booking #{item.id}</span>
           </div>
           {item.previousAppointmentId && <p className="mt-3 text-sm text-[#80656d]">Follow-up to appointment #{item.previousAppointmentId}</p>}
-          {status === 'completed' && <Link to="/appointments" className="mt-3 inline-block text-sm font-semibold text-[#d77992]">Schedule next session in Appointments → Past → View Details</Link>}
+          {status === 'completed' && <p className="mt-3 text-sm text-[#80656d]">Your follow-up will be arranged by our staff. You’ll receive a notification and email when it is scheduled.</p>}
         </article>;
       })}
     </div>}

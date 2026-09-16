@@ -47,6 +47,8 @@ function Appointments() {
   const [currentTime, setCurrentTime] = useState(() => Date.now());
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const currentUser = getCurrentUser();
+  const canCreateNextSession = currentUser?.role === 'admin' || currentUser?.role === 'employee';
 
   const [confirmAction, setConfirmAction] =
     useState<AppointmentConfirmAction | null>(null);
@@ -792,7 +794,7 @@ function Appointments() {
                 </div>
 
                 {selectedAppointment.notes && <p className="whitespace-pre-wrap">{selectedAppointment.notes}</p>}
-                <NextSession key={selectedAppointment.id} appointment={selectedAppointment} onCreated={() => void fetchAppointments()} />
+                {canCreateNextSession && <NextSession key={selectedAppointment.id} appointment={selectedAppointment} onCreated={() => void fetchAppointments()} />}
                 {/* ACTIONS */}
                 <div className="space-y-3 border-t border-pink-100 pt-4">
                   {selectedAppointment.status !==
