@@ -7,6 +7,7 @@ export type AppointmentStatus =
   | 'no-show';
 
 export interface Appointment {
+  itemType?: 'Service' | 'Product';
   previousAppointmentId?: number | null;
   id: number;
   customerId: number;

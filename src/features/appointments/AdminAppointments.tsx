@@ -465,6 +465,7 @@ function AdminAppointments() {
   );
 
   const NextSessionButton = ({ appointment }: { appointment: Appointment }) => (
+    appointment.itemType === 'Product' ? null :
     <button
       type="button"
       onClick={() => setSessionAppointment(appointment)}

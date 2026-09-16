@@ -37,7 +37,7 @@ function Booking() {
   // STATES
   // ==========================================
 
-  const [selectedService, setSelectedService] =
+  const [selectedItem, setSelectedItem] =
     useState<number | null>(null);
 
   const [selectedDate, setSelectedDate] =
@@ -88,15 +88,15 @@ function Booking() {
         const data = await getServices();
         const activeItems = Array.isArray(data) ? data : [];
         setCatalog(activeItems);
-        setSelectedService((current) =>
-          activeItems.some((item) => (item.type || 'Service') === 'Service' && item.id === current)
+        setSelectedItem((current) =>
+          activeItems.some((item) => item.id === current)
             ? current
             : null
         );
       } catch (error) {
         console.error('Failed to load services:', error);
         setCatalog([]);
-        setSelectedService(null);
+        setSelectedItem(null);
         setServicesError('There was a problem loading the available services. Please try again later.');
       } finally {
         setIsLoadingServices(false);
@@ -152,8 +152,8 @@ function Booking() {
   // SELECTED SERVICE
   // ==========================================
 
-  const service = services.find(
-    (item) => item.id === selectedService
+  const selectedItemDetails = catalog.find(
+    (item) => item.id === selectedItem
   );
 
   // ==========================================
@@ -219,11 +219,11 @@ function Booking() {
   };
 
   const handleBooking = async () => {
-  if (!service) {
+  if (!selectedItemDetails) {
     await Swal.fire({
       icon: 'warning',
-      title: 'No Service Selected',
-      text: 'Please select a service.',
+      title: 'No Item Selected',
+      text: 'Please select a service or product.',
       confirmButtonColor: '#d77a94',
     });
     return;
@@ -281,11 +281,11 @@ function Booking() {
     await createBooking({
       customerId: currentUser.id,
 
-      serviceId: service.id,
+      serviceId: selectedItemDetails.id,
 
-      serviceName: service.name,
+      serviceName: selectedItemDetails.name,
 
-      category: service.category,
+      category: selectedItemDetails.category,
 
       date: selectedDate,
 
@@ -293,20 +293,20 @@ function Booking() {
 
       area: selectedArea,
 
-      price: service.price,
+      price: selectedItemDetails.price,
     });
 
     await Swal.fire({
       icon: "success",
         title: "Appointment Booked!",
-        footer: 'To schedule a follow-up, open Appointments → View Details → Schedule next session.',
+        
       html: `
         <div style="text-align: left; line-height: 1.8;">
-          <p><strong>Service:</strong> ${service.name}</p>
+          <p><strong>${selectedItemDetails.type === 'Product' ? 'Product' : 'Service'}:</strong> ${selectedItemDetails.name}</p>
           <p><strong>Date:</strong> ${selectedDate}</p>
           <p><strong>Time:</strong> ${selectedTime}</p>
           <p><strong>Area:</strong> ${selectedArea}</p>
-          <p><strong>Price:</strong> ₱${service.price.toLocaleString()}</p>
+          <p><strong>Price:</strong> ₱${selectedItemDetails.price.toLocaleString()}</p>
         </div>
       `,
       confirmButtonText: "Done",
@@ -442,14 +442,14 @@ function Booking() {
               {!isLoadingServices && !servicesError && services.map((item) => {
 
                 const active =
-                  selectedService === item.id;
+                  selectedItem === item.id;
 
                 return (
                   <button
                     type="button"
                     key={item.id}
                     onClick={() =>
-                      setSelectedService(
+                      setSelectedItem(
                         item.id
                       )
                     }
@@ -559,19 +559,21 @@ function Booking() {
             {!isLoadingServices && products.length > 0 && (
               <div className="mt-8 border-t border-pink-100 pt-6">
                 <h3 className="mb-1 font-bold text-[#4b343b]">Products</h3>
-                <p className="mb-4 text-xs text-[#92737c]">Available products are shown for reference and cannot be booked as appointments.</p>
+                <p className="mb-4 text-xs text-[#92737c]">Select a product to book it as an appointment.</p>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {products.map((item) => (
-                    <div key={item.id} className="flex gap-4 rounded-2xl border border-pink-100 bg-white p-3">
+                    <button type="button" key={item.id} onClick={() => setSelectedItem(item.id)} className={`group relative flex w-full gap-4 rounded-2xl border p-3 text-left transition-all ${selectedItem === item.id ? 'border-[#df7f98] bg-[#fff4f6] ring-2 ring-pink-100 shadow-md' : 'border-pink-100 bg-white hover:-translate-y-1 hover:border-[#e8b4c1] hover:shadow-md'}`}>
+                      {selectedItem === item.id && <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-[#df7f98] text-white"><Check size={14} strokeWidth={3} /></span>}
                       <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-[#fff4f6]">
                         {getImageUrl(item.image) ? <img src={getImageUrl(item.image)} alt={item.name} className="h-full w-full object-cover" /> : <div className="h-full w-full" />}
                       </div>
                       <div className="min-w-0">
                         <p className="font-bold text-[#4b343b]">{item.name}</p>
                         <p className="mt-1 text-xs text-[#92737c]">{item.category}</p>
+                        <p className="mt-1 text-xs text-[#92737c]">Duration: {item.duration || 'Not applicable'}</p>
                         <p className="mt-2 font-bold text-[#c18c2d]">₱{item.price.toLocaleString()}</p>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -881,14 +883,14 @@ function Booking() {
                 SELECTED SERVICE
             ========================================== */}
 
-            {service && (
+            {selectedItemDetails && (
 
               <div className="mb-5 overflow-hidden rounded-2xl border border-pink-100 bg-[#fffafb]">
 
-                {getImageUrl(service.image) ? (
+                {getImageUrl(selectedItemDetails.image) ? (
                   <img
-                    src={getImageUrl(service.image)}
-                    alt={service.name}
+                    src={getImageUrl(selectedItemDetails.image)}
+                    alt={selectedItemDetails.name}
                     className="h-36 w-full object-cover sm:h-40"
                   />
                 ) : (
@@ -898,15 +900,15 @@ function Booking() {
                 <div className="p-4">
 
                   <p className="text-[10px] font-bold uppercase tracking-wider text-[#b14f70]">
-                    {service.category}
+                    {selectedItemDetails.category}
                   </p>
 
                   <h3 className="mt-1 break-words font-bold text-[#4b343b]">
-                    {service.name}
+                    {selectedItemDetails.name}
                   </h3>
 
                   <p className="mt-1 text-xs text-[#92737c]">
-                    {service.duration}
+                    {selectedItemDetails.duration || 'Not applicable'}
                   </p>
 
                 </div>
@@ -919,7 +921,7 @@ function Booking() {
                 NO SERVICE
             ========================================== */}
 
-            {!service && (
+            {!selectedItemDetails && (
 
               <div
                 className="
@@ -946,11 +948,11 @@ function Booking() {
                 />
 
                 <p className="text-sm font-medium text-[#73555f]">
-                  No service selected
+                  No service or product selected
                 </p>
 
                 <p className="mt-1 text-xs leading-5 text-[#a1878e]">
-                  Select a service to see your appointment details.
+                  Select a service or product to see your appointment details.
                 </p>
 
               </div>
@@ -972,8 +974,8 @@ function Booking() {
                 </p>
 
                 <p className="mt-1 break-words font-semibold text-[#4b343b]">
-                  {service?.name ||
-                    'No service selected'}
+                  {selectedItemDetails?.name ||
+                    'No service or product selected'}
                 </p>
 
               </div>
@@ -1035,8 +1037,8 @@ function Booking() {
 
                 <p className="mt-1 text-2xl font-bold text-[#c18c2d] sm:text-3xl">
                   ₱
-                  {service
-                    ? service.price.toLocaleString()
+                  {selectedItemDetails
+                    ? selectedItemDetails.price.toLocaleString()
                     : '0'}
                 </p>
 

@@ -7,6 +7,7 @@ import type { Appointment, Employee, Service } from '../../../types';
 export default function NextSession({ appointment, onCreated }: {
   appointment: Appointment; onCreated?: (session: Appointment) => void;
 }) {
+  const [resolvedItemType, setResolvedItemType] = useState(appointment.itemType);
   const [open, setOpen] = useState(false);
   const [sessions, setSessions] = useState<Appointment[]>([]);
   const [services, setServices] = useState<Service[]>([]);
@@ -22,10 +23,18 @@ export default function NextSession({ appointment, onCreated }: {
   const [notes, setNotes] = useState('');
   useEffect(() => {
     let active = true;
+    if (appointment.itemType === 'Product') return () => { active = false; };
     getNextSessions(appointment.id).then(data => { if (active) setSessions(data); })
       .catch(err => { if (active) setError(err instanceof Error ? err.message : 'Unable to load next sessions.'); });
     return () => { active = false; };
   }, [appointment.id]);
+  useEffect(() => {
+    if (appointment.itemType) return;
+    getServices().then(catalog => {
+      const item = catalog.find(entry => entry.id === appointment.serviceId);
+      if (item) setResolvedItemType(item.type || 'Service');
+    }).catch(() => { /* Legacy appointments default to Service behavior. */ });
+  }, [appointment.itemType, appointment.serviceId]);
   async function showForm() {
     setOpen(true); setLoading(true); setError(''); setSuccess('');
     try {
@@ -38,6 +47,7 @@ export default function NextSession({ appointment, onCreated }: {
   }
   const eligible = ['pending', 'confirmed', 'completed'].includes(appointment.status.toLowerCase());
   const field = 'mt-1 w-full rounded-lg border border-pink-200 bg-white px-3 py-2 text-sm';
+  if (resolvedItemType === 'Product') return null;
   return <section className="space-y-3 rounded-xl border border-pink-100 bg-[#fffafb] p-4 text-sm text-[#5b3e45]">
     <h3 className="font-semibold">Next Session / Follow-up Appointment</h3>
     {appointment.previousAppointmentId && <p>Previous appointment: #{appointment.previousAppointmentId}</p>}
