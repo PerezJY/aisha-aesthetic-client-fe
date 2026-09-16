@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import NextSession from './components/NextSession';
 import { useSearchParams } from 'react-router-dom';
 import { CalendarClock, ChevronLeft, ChevronRight, History, Trash2 } from 'lucide-react';
@@ -11,6 +11,7 @@ import {
   updateAppointmentStatus,
 } from '../../api/appointments.api';
 import { getCurrentUser } from '../../utils/auth';
+import { employeeDisplayName } from '../../utils/employeeDisplay';
 
 import type { Appointment } from '../../types';
 
@@ -31,6 +32,7 @@ const PAGE_SIZE = 10;
 function AdminAppointments() {
   const [sessionAppointment, setSessionAppointment] = useState<Appointment | null>(null);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [selectedAppointmentIds, setSelectedAppointmentIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
 
   // =========================================================
@@ -109,6 +111,7 @@ function AdminAppointments() {
 
         const data = await getAdminAppointments(params);
 
+        setSelectedAppointmentIds([]);
         setAppointments(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error('Error fetching appointments:', error);
@@ -218,6 +221,46 @@ function AdminAppointments() {
     const start = (currentPage - 1) * PAGE_SIZE;
     return filteredAppointments.slice(start, start + PAGE_SIZE);
   }, [filteredAppointments, currentPage]);
+
+  const filteredAppointmentIds = useMemo(
+    () => filteredAppointments.map((appointment) => appointment.id),
+    [filteredAppointments]
+  );
+  const selectedFilteredCount = selectedAppointmentIds.filter((id) =>
+    filteredAppointmentIds.includes(id)
+  ).length;
+  const allFilteredSelected =
+    filteredAppointmentIds.length > 0 &&
+    selectedFilteredCount === filteredAppointmentIds.length;
+  const someFilteredSelected =
+    selectedFilteredCount > 0 && !allFilteredSelected;
+  const selectAllRef = useRef<HTMLInputElement>(null);
+  const tableSelectAllRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (selectAllRef.current) {
+      selectAllRef.current.indeterminate = someFilteredSelected;
+    }
+    if (tableSelectAllRef.current) {
+      tableSelectAllRef.current.indeterminate = someFilteredSelected;
+    }
+  }, [someFilteredSelected]);
+
+  const toggleAppointmentSelection = (appointmentId: number) => {
+    setSelectedAppointmentIds((selected) =>
+      selected.includes(appointmentId)
+        ? selected.filter((id) => id !== appointmentId)
+        : [...selected, appointmentId]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    setSelectedAppointmentIds((selected) =>
+      allFilteredSelected
+        ? selected.filter((id) => !filteredAppointmentIds.includes(id))
+        : Array.from(new Set([...selected, ...filteredAppointmentIds]))
+    );
+  };
 
   const rangeStart =
     filteredAppointments.length === 0
@@ -370,6 +413,56 @@ function AdminAppointments() {
         confirmButtonColor: '#df7f98',
       });
     }
+  };
+
+  const deleteSelectedAppointments = async () => {
+    const selectedIds = selectedAppointmentIds.filter((id) =>
+      filteredAppointmentIds.includes(id)
+    );
+    if (selectedIds.length === 0) return;
+
+    const result = await Swal.fire({
+      title: 'Delete Selected Appointments?',
+      text: `Move ${selectedIds.length} appointment${selectedIds.length === 1 ? '' : 's'} to Archives? You can restore them later.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Delete Selected',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#c1433f',
+      cancelButtonColor: '#9ca3af',
+      reverseButtons: true,
+      focusCancel: true,
+    });
+    if (!result.isConfirmed) return;
+
+    Swal.fire({
+      title: 'Deleting...',
+      text: 'Please wait while appointments are being moved to Archives.',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showConfirmButton: false,
+      didOpen: () => Swal.showLoading(),
+    });
+
+    const results = await Promise.allSettled(
+      selectedIds.map((id) => deleteAppointmentById(id))
+    );
+    const deletedIds = selectedIds.filter((_, index) => results[index].status === 'fulfilled');
+    const failedCount = selectedIds.length - deletedIds.length;
+
+    setAppointments((current) => current.filter((item) => !deletedIds.includes(item.id)));
+    setSelectedAppointmentIds((selected) => selected.filter((id) => !deletedIds.includes(id)));
+
+    await Swal.fire({
+      icon: failedCount === 0 ? 'success' : 'warning',
+      title: failedCount === 0 ? 'Moved to Archives' : 'Partial Delete',
+      text: failedCount === 0
+        ? `${deletedIds.length} appointment${deletedIds.length === 1 ? '' : 's'} moved to Archives.`
+        : `${deletedIds.length} moved to Archives; ${failedCount} could not be deleted and remain visible.`,
+      confirmButtonColor: '#df7f98',
+      timer: failedCount === 0 ? 1800 : undefined,
+      showConfirmButton: failedCount !== 0,
+    });
   };
 
   // =========================================================
@@ -596,6 +689,7 @@ function AdminAppointments() {
             <select
               value={effectiveTypeFilter}
               onChange={(event) => {
+                setSelectedAppointmentIds([]);
                 if (isDashboardFilter) {
                   setSearchParams({}, { replace: true });
                 }
@@ -618,6 +712,7 @@ function AdminAppointments() {
             <select
               value={effectiveStatusFilter}
               onChange={(event) => {
+                setSelectedAppointmentIds([]);
                 if (isDashboardFilter) {
                   setSearchParams({}, { replace: true });
                 }
@@ -635,15 +730,22 @@ function AdminAppointments() {
           </div>
         </div>
 
-        {hasActiveFilters && (
-          <button
-            type="button"
-            onClick={clearFilters}
-            className="self-start rounded-lg border border-pink-200 bg-white px-3 py-2 text-xs font-semibold text-[#c15d78] transition hover:bg-[#fff0f4] sm:self-auto"
-          >
-            Clear Filters
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+          {filteredAppointments.length > 0 && (
+            <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-pink-200 bg-white px-3 py-2 text-xs font-semibold text-[#745d65]">
+              <input ref={selectAllRef} type="checkbox" checked={allFilteredSelected} onChange={toggleSelectAll} aria-label="Select all filtered appointments" className="h-4 w-4 accent-[#df7f98]" />
+              Select all
+            </label>
+          )}
+          <button type="button" onClick={deleteSelectedAppointments} disabled={selectedFilteredCount === 0} className="flex items-center gap-1.5 rounded-lg bg-[#c1433f] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#a93633] disabled:cursor-not-allowed disabled:opacity-40">
+            <Trash2 size={13} /> Delete Selected{selectedFilteredCount > 0 ? ` (${selectedFilteredCount})` : ''}
           </button>
-        )}
+          {hasActiveFilters && (
+            <button type="button" onClick={clearFilters} className="rounded-lg border border-pink-200 bg-white px-3 py-2 text-xs font-semibold text-[#c15d78] transition hover:bg-[#fff0f4]">
+              Clear Filters
+            </button>
+          )}
+        </div>
       </div>
 
       {/* =====================================================
@@ -677,7 +779,9 @@ function AdminAppointments() {
                 className="rounded-2xl border border-pink-100 bg-white p-4 shadow-sm"
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <input type="checkbox" checked={selectedAppointmentIds.includes(appointment.id)} onChange={() => toggleAppointmentSelection(appointment.id)} aria-label={`Select appointment for ${appointment.customerName || `Customer #${appointment.customerId}`}`} className="mt-1 h-4 w-4 accent-[#df7f98]" />
+                    <div className="min-w-0">
                     <p
                       className="truncate font-semibold text-[#5b3e45]"
                       title={
@@ -697,6 +801,7 @@ function AdminAppointments() {
                         {appointment.customerEmail}
                       </p>
                     )}
+                    </div>
                   </div>
 
                   <span
@@ -734,16 +839,10 @@ function AdminAppointments() {
                     <p
                       className="truncate font-medium text-[#5b3e45]"
                       title={
-                        appointment.employeeName ||
-                        (appointment.employeeId
-                          ? `Employee #${appointment.employeeId}`
-                          : 'Unassigned')
+                        employeeDisplayName(appointment.employeeName, appointment.employeeId)
                       }
                     >
-                      {appointment.employeeName ||
-                        (appointment.employeeId
-                          ? `Employee #${appointment.employeeId}`
-                          : 'Unassigned')}
+                      {employeeDisplayName(appointment.employeeName, appointment.employeeId)}
                     </p>
                   </div>
 
@@ -795,6 +894,7 @@ function AdminAppointments() {
               <table className="w-full min-w-[1000px] text-left text-sm">
                 <thead className="bg-[#fff4f6] text-[#5b3e45]">
                   <tr>
+                    <th className="whitespace-nowrap px-4 py-3 font-semibold"><input ref={tableSelectAllRef} type="checkbox" checked={allFilteredSelected} onChange={toggleSelectAll} aria-label="Select all filtered appointments" className="h-4 w-4 accent-[#df7f98]" /></th>
                     <th className="whitespace-nowrap px-4 py-3 font-semibold">Customer</th>
                     <th className="whitespace-nowrap px-4 py-3 font-semibold">Type</th>
                     <th className="whitespace-nowrap px-4 py-3 font-semibold">Service</th>
@@ -820,6 +920,7 @@ function AdminAppointments() {
                       key={appointment.id}
                       className="border-t border-pink-100 transition hover:bg-[#fffafb]"
                     >
+                      <td className="px-4 py-3"><input type="checkbox" checked={selectedAppointmentIds.includes(appointment.id)} onChange={() => toggleAppointmentSelection(appointment.id)} aria-label={`Select appointment for ${appointment.customerName || `Customer #${appointment.customerId}`}`} className="h-4 w-4 accent-[#df7f98]" /></td>
                       {/* Customer */}
                       <td className="px-4 py-3">
                         <div
@@ -891,16 +992,10 @@ function AdminAppointments() {
                         <span
                           className="block max-w-[140px] truncate font-medium text-[#5b3e45]"
                           title={
-                            appointment.employeeName ||
-                            (appointment.employeeId
-                              ? `Employee #${appointment.employeeId}`
-                              : 'Unassigned')
+                            employeeDisplayName(appointment.employeeName, appointment.employeeId)
                           }
                         >
-                          {appointment.employeeName ||
-                            (appointment.employeeId
-                              ? `Employee #${appointment.employeeId}`
-                              : 'Unassigned')}
+                          {employeeDisplayName(appointment.employeeName, appointment.employeeId)}
                         </span>
                       </td>
 

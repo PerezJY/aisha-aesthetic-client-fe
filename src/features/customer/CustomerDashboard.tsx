@@ -7,6 +7,7 @@ import type { Appointment } from '../../types';
 import { getCurrentUser } from '../../utils/auth';
 import { useNotifications } from '../../hooks/useNotifications';
 import { customerOverview } from '../../utils/customerOverview';
+import { employeeDisplayName } from '../../utils/employeeDisplay';
 
 const theme = createTheme({ palette: { primary: { main: '#ad5871' } }, typography: { fontFamily: 'Poppins, sans-serif', button: { textTransform: 'none', fontWeight: 600 } }, shape: { borderRadius: 12 } });
 const statusColors: Record<string, { bg: string; color: string }> = {
@@ -66,7 +67,7 @@ export default function CustomerDashboard() {
           {loading ? <div className="space-y-3"><Skeleton width="65%" height={40} /><Skeleton width="80%" /><Skeleton height={70} /></div> : error ? <><h2 className="text-2xl font-semibold">Let's reconnect.</h2><p className="mt-3 text-sm text-[#967f87]">Retry above to see your latest schedule.</p></> : next ? <>
             <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">{next.serviceName}</h2><p className="mt-2 text-sm text-[#967f87]">{next.previousAppointmentId ? `Your follow-up to appointment #${next.previousAppointmentId}` : 'Your next moment of self-care is on the calendar.'}</p>
             <div className="my-5 flex flex-wrap gap-x-6 gap-y-3 text-sm"><span className="flex items-center gap-2"><CalendarDays size={16} className="text-[#b8778d]" />{formatDate(next.date)}</span><span className="flex items-center gap-2"><Clock3 size={16} className="text-[#b8778d]" />{next.time}</span></div>
-            <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-[#967f87]"><span className="flex items-center gap-1.5"><MapPin size={14} />{next.area}</span><span className="flex items-center gap-1.5"><UserRound size={14} />{next.employeeName || 'Employee to be assigned'}</span></div>
+            <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-[#967f87]"><span className="flex items-center gap-1.5"><MapPin size={14} />{next.area}</span><span className="flex items-center gap-1.5"><UserRound size={14} />{employeeDisplayName(next.employeeName, next.employeeId, false)}</span></div>
             {next.notes && <p className="mt-4 rounded-xl bg-white/60 p-3 text-xs leading-relaxed text-[#876f77]">{next.notes}</p>}
             <Button component={Link} to="/appointments" endIcon={<ArrowRight size={16} />} sx={{ mt: 3, px: 0 }}>View appointment details</Button>
           </> : <><h2 className="max-w-sm text-2xl font-semibold sm:text-3xl">Make room for a little self-care.</h2><p className="mt-3 max-w-md text-sm leading-relaxed text-[#967f87]">No upcoming appointments yet. Explore our services and choose a time that works for you.</p><Button component={Link} to="/booking" endIcon={<ArrowRight size={16} />} sx={{ mt: 3, px: 0 }}>Find your next treatment</Button></>}

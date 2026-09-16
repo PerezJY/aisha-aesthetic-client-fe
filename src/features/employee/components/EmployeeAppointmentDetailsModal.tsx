@@ -23,6 +23,7 @@ import {
 } from '../utils/appointmentDashboard';
 import EmployeeStatusBadge from './EmployeeStatusBadge';
 import NextSession from '../../appointments/components/NextSession';
+import { employeeDisplayName } from '../../../utils/employeeDisplay';
 
 function EmployeeAppointmentDetailsModal({
   activeTab,
@@ -99,7 +100,7 @@ function EmployeeAppointmentDetailsModal({
 
           <InfoSection icon={<UserCheck size={18} />} title="Assigned Employee">
             <p className="font-semibold text-gray-800">
-              {appointment.employeeName || `Employee #${appointment.employeeId}`}
+              {employeeDisplayName(appointment.employeeName, appointment.employeeId)}
             </p>
             {appointment.employeeEmail && (
               <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">

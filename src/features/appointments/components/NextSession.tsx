@@ -3,6 +3,7 @@ import { createNextSession, getNextSessions } from '../../../api/appointments.ap
 import { getServices } from '../../../api/services.api';
 import { getEmployees } from '../../../api/users.api';
 import type { Appointment, Employee, Service } from '../../../types';
+import { employeeDisplayName } from '../../../utils/employeeDisplay';
 
 export default function NextSession({ appointment, onCreated }: {
   appointment: Appointment; onCreated?: (session: Appointment) => void;
@@ -54,7 +55,7 @@ export default function NextSession({ appointment, onCreated }: {
     {sessions.map(session => <div key={session.id} className="rounded-lg bg-white p-3">
       <p className="font-semibold">#{session.id} · {session.serviceName}</p>
       <p>{session.date} at {session.time} · {session.status}</p>
-      <p>{session.employeeName || 'Employee to be assigned'}</p>
+      <p>{employeeDisplayName(session.employeeName, session.employeeId, false)}</p>
       {session.notes && <p className="whitespace-pre-wrap">{session.notes}</p>}
     </div>)}
     {error && <p role="alert" className="text-red-700">{error}</p>}

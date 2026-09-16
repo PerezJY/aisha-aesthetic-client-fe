@@ -17,6 +17,7 @@ import {
   formatPeso,
 } from '../utils/appointmentDashboard';
 import EmployeeStatusBadge from './EmployeeStatusBadge';
+import { employeeDisplayName } from '../../../utils/employeeDisplay';
 
 function EmployeeAppointmentList({
   appointments,
@@ -147,11 +148,7 @@ function EmployeeAppointmentList({
          <MobileDetail icon={<UserCheck size={17} />} label="Assigned Employee"
         >
           <p className="font-medium text-gray-800">
-            {appointment.employeeName
-              ? appointment.employeeName
-              : appointment.employeeId
-                ? `Employee #${appointment.employeeId}`
-                : 'Unassigned'}
+            {employeeDisplayName(appointment.employeeName, appointment.employeeId)}
           </p>
         </MobileDetail>
 
