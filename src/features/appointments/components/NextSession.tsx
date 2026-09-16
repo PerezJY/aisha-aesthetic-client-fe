@@ -88,7 +88,7 @@ export default function NextSession({ appointment, onCreated }: {
           <option value="">Assign later</option>
           {employees.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
         </select></label>
-        <label className="block">Notes/instructions<textarea maxLength={5000} value={notes} onChange={e => setNotes(e.target.value)} className={field} rows={3} /></label>
+        <label className="block">Notes<textarea maxLength={5000} value={notes} onChange={e => setNotes(e.target.value)} className={field} rows={3} /></label>
         <button className="rounded-lg bg-[#df7f98] px-4 py-2 font-semibold text-white" type="submit">{busy ? 'Saving…' : loading ? 'Loading…' : 'Save next session'}</button>
       </fieldset>
       <button type="button" disabled={busy} onClick={() => setOpen(false)} className="px-3 py-2">Cancel</button>

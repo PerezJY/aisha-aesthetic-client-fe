@@ -87,7 +87,7 @@ export default function History() {
             <span className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold capitalize ${statusStyles[status] || 'bg-gray-100 text-gray-700'}`}>{status || 'Status not recorded'}</span>
             <span className="shrink-0 whitespace-nowrap text-xs text-[#92737c]">Booking #{item.id}</span>
           </div>
-          {item.previousAppointmentId && <p className="mt-3 text-sm text-[#80656d]">Follow-up to appointment #{item.previousAppointmentId}</p>}
+          {item.previousAppointmentId && <p className="mt-3 text-sm text-[#80656d]">Follow-up from your previous visit</p>}
           {status === 'completed' && <p className="mt-3 text-sm text-[#80656d]">Your follow-up will be arranged by our staff. You’ll receive a notification and email when it is scheduled.</p>}
         </article>;
       })}
