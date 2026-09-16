@@ -26,6 +26,87 @@ body {
     #fff8fa;
 }
 
+@keyframes landing-fade-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes landing-float {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -20px, 0); }
+}
+
+@keyframes landing-glow {
+  0%, 100% { opacity: .42; transform: scale(.96); }
+  50% { opacity: .9; transform: scale(1.06); }
+}
+
+@keyframes landing-shimmer {
+  from { transform: translateX(-120%) rotate(18deg); }
+  to { transform: translateX(220%) rotate(18deg); }
+}
+
+.landing-reveal {
+  animation: landing-fade-up 700ms cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.landing-shimmer { position: relative; isolation: isolate; }
+.landing-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 -25%;
+  z-index: -1;
+  width: 22%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.42), transparent);
+  animation: landing-shimmer 7s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.landing-fade-up {
+  opacity: 0;
+  animation: landing-fade-up 700ms cubic-bezier(.22, 1, .36, 1) forwards;
+}
+
+.signin-fade-up {
+  animation: landing-fade-up 700ms cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.signin-image-float {
+  animation: landing-float 5.5s ease-in-out infinite;
+}
+
+.signin-image-drift {
+  animation: landing-image-drift 10s ease-in-out infinite alternate;
+}
+
+.signin-glow {
+  animation: landing-glow 4.5s ease-in-out infinite;
+}
+
+@keyframes landing-image-drift {
+  from { transform: scale(1.01) translate3d(0, 0, 0); }
+  to { transform: scale(1.06) translate3d(-1.5%, -1%, 0); }
+}
+
+@keyframes signin-accent-orbit {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50% { transform: translate3d(10px, -24px, 0) rotate(18deg); }
+}
+
+.signin-accent-gold { animation: signin-accent-orbit 4.8s ease-in-out infinite; }
+.signin-accent-pink { animation: signin-accent-orbit 6.4s ease-in-out -2s infinite reverse; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+  .landing-shimmer::after { animation: none; }
+  .signin-fade-up, .signin-image-float, .signin-image-drift, .signin-glow, .signin-accent-gold, .signin-accent-pink { animation: none; }
+}
+
 button,
 input,
 select,

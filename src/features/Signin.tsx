@@ -113,6 +113,7 @@ function Signin() {
             min-h-[600px]
             overflow-hidden
             bg-[#f8dce3]
+            signin-image-float
             md:flex
             md:flex-col
             md:justify-between
@@ -123,6 +124,7 @@ function Signin() {
               BEAUTY IMAGE
           ======================================== */}
 
+          <div className="signin-glow absolute -inset-8 rounded-[3rem] bg-[#f8dce3]/70 blur-2xl" aria-hidden="true" />
           <img
             src={beautyWoman}
             alt="AishaEsthetics Beauty Treatment"
@@ -133,6 +135,7 @@ function Signin() {
               w-full
               object-cover
               object-center
+              signin-image-drift
             "
           />
 
@@ -140,6 +143,9 @@ function Signin() {
           {/* ========================================
               IMAGE OVERLAY
           ======================================== */}
+
+          <span className="signin-accent-gold absolute right-10 top-24 h-6 w-6 rounded-full bg-[#e7c67b]/70 shadow-lg" aria-hidden="true" />
+          <span className="signin-accent-pink absolute bottom-28 left-12 h-3.5 w-3.5 rounded-full bg-[#d77992]/60 shadow-md" aria-hidden="true" />
 
           <div
             className="
@@ -157,7 +163,7 @@ function Signin() {
               TOP LOGO
           ======================================== */}
 
-          <div className="relative z-10 p-8 lg:p-10">
+          <div className="signin-fade-up relative z-10 p-8 lg:p-10">
             <BrandLogo className="h-32 w-32 lg:h-40 lg:w-40" />
 
             
@@ -169,7 +175,7 @@ function Signin() {
               CENTER CONTENT
           ======================================== */}
 
-          <div className="relative z-10 px-8 pb-10 lg:px-10">
+          <div className="signin-fade-up relative z-10 px-8 pb-10 [animation-delay:180ms] lg:px-10">
 
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#b88a2c]">
               AishaEsthetics
@@ -204,7 +210,7 @@ function Signin() {
               BOTTOM TEXT
           ======================================== */}
 
-          <div className="relative z-10 px-8 pb-8 lg:px-10">
+          <div className="signin-fade-up relative z-10 px-8 pb-8 [animation-delay:300ms] lg:px-10">
 
             <p className="text-xs text-[#9d7c85]">
               Beauty • Aesthetics • Wellness
@@ -228,7 +234,7 @@ function Signin() {
           <div className="md:hidden">
 
             <div
-              className="
+              className="signin-fade-up
                 flex
                 h-20
                 w-20
@@ -249,7 +255,7 @@ function Signin() {
               HEADER
           ======================================== */}
 
-          <div className="mt-8">
+          <div className="signin-fade-up mt-8 [animation-delay:120ms]">
 
             <p className="text-sm font-medium text-[#b88a2c]">
               Welcome Back
@@ -272,7 +278,7 @@ function Signin() {
 
           <form
             onSubmit={handleSubmit}
-            className="mt-8 space-y-5"
+            className="signin-fade-up mt-8 space-y-5 [animation-delay:220ms]"
           >
             {location.state?.signupSuccess && <p role="status" className="rounded-xl bg-green-50 p-3 text-sm text-green-700">Your customer account has been created. Sign in below.</p>}
             {error && (
@@ -437,7 +443,7 @@ function Signin() {
 
             <button
               type="submit"
-              className="primary-btn w-full disabled:cursor-not-allowed disabled:opacity-70"
+              className="primary-btn w-full shadow-md transition duration-300 hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-70"
               disabled={loading}
             >
               {loading ? 'Signing in...' : 'Sign In'}

@@ -8,6 +8,7 @@ import {
 } from 'react-router-dom';
 
 import Dashboard from './features/Dashboard';
+import LandingPage from './features/LandingPage';
 import Booking from './features/booking/BookingPage';
 import Appointments from './features/appointments/AppointmentsPage';
 import History from './features/History';
@@ -56,12 +57,7 @@ function App() {
   // ==========================================
 
   if (location.pathname === '/') {
-    return (
-      <Navigate
-        to={getRoleDestination(currentUser)}
-        replace
-      />
-    );
+    return <LandingPage />;
   }
 
   // ==========================================
