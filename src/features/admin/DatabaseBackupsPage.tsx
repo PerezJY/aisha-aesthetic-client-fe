@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { Alert, Button, Chip, CircularProgress, InputAdornment, LinearProgress, Skeleton, TablePagination, TextField, ThemeProvider, createTheme } from '@mui/material';
 import { Archive, ArrowDownToLine, CalendarClock, Check, ChevronDown, Clock3, Database, FileArchive, HardDrive, Info, Plus, RefreshCw, Search, ShieldCheck } from 'lucide-react';
-import { createBackup, downloadBackup, getBackups } from '../../api/backups.api';
+import { createBackup, downloadBackup, getBackups, restoreBackup } from '../../api/backups.api';
 import type { BackupStatus } from '../../api/backups.api';
 
 const theme = createTheme({
@@ -26,6 +26,7 @@ export default function DatabaseBackupsPage() {
   const [downloading, setDownloading] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [restoring, setRestoring] = useState(false);
   const [filter, setFilter] = useState<Filter>('all');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(0);
@@ -70,6 +71,16 @@ export default function DatabaseBackupsPage() {
     finally { setDownloading(null); }
   }
 
+  async function handleRestore(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]; event.target.value = '';
+    if (!file) return;
+    if (!window.confirm('Restore this backup? The current database will first be saved automatically, then replaced by the uploaded backup.')) return;
+    setRestoring(true); setError(''); setSuccess('');
+    try { const result = await restoreBackup(file); setSuccess(result.message); await refresh(); }
+    catch (reason) { setError(reason instanceof Error ? reason.message : 'Unable to restore backup.'); }
+    finally { setRestoring(false); }
+  }
+
   const backups = [...(status?.backups || [])].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
   const latest = backups[0];
   const totalSize = backups.reduce((total, backup) => total + backup.size, 0);
@@ -87,10 +98,12 @@ export default function DatabaseBackupsPage() {
           <h1 className="page-title">Database Backups</h1>
           <p className="page-subtitle">Keeping your data safe and protected</p>
         </div>
-        <Button variant="contained" startIcon={busy ? <CircularProgress size={16} color="inherit" /> : <Plus size={18} />}
+        <div className="flex flex-wrap gap-2"><Button component="label" variant="outlined" disabled={busy || restoring || loading} startIcon={restoring ? <CircularProgress size={16} /> : <ArrowDownToLine size={17} />}>
+          {restoring ? 'Restoring…' : 'Restore backup'}<input hidden type="file" accept=".sqlite,application/vnd.sqlite3,application/octet-stream" onChange={handleRestore} />
+        </Button><Button variant="contained" startIcon={busy ? <CircularProgress size={16} color="inherit" /> : <Plus size={18} />}
           onClick={() => void handleCreate()} disabled={loading || busy || !status} sx={{ mt: { xs: 0, sm: 2 }, px: 2.5, py: 1.4 }}>
           {busy ? 'Creating backup…' : 'Create backup'}
-        </Button>
+        </Button></div>
       </header>
 
       {error && <Alert severity="error" onClose={() => setError('')} action={<Button color="inherit" size="small" disabled={refreshing} onClick={() => void refresh()}>Retry</Button>}>{error}</Alert>}

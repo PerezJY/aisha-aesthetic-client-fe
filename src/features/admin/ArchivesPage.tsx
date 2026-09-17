@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment, MenuItem, Skeleton, TablePagination, TextField, ThemeProvider, createTheme } from '@mui/material';
-import { Archive, ArrowUpRight, CalendarClock, RotateCcw, Search, ShieldCheck } from 'lucide-react';
+import { Archive, ArrowUpRight, CalendarClock, RotateCcw, Search } from 'lucide-react';
 import { getArchives, restoreArchive } from '../../api/archives.api';
 import type { ArchiveRecord, ArchiveEntity } from '../../api/archives.api';
 const labels: Record<ArchiveEntity, string> = { users: 'Accounts', services: 'Services & products', 'shop-areas': 'Shop areas', appointments: 'Appointments & walk-ins', followups: 'Follow-up reminders' };

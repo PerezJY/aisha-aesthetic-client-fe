@@ -19,6 +19,13 @@ export interface BackupStatus {
 
 export const getBackups = () => apiRequest<BackupStatus>('/api/backups');
 export const createBackup = () => apiRequest<DatabaseBackup>('/api/backups', { method: 'POST' });
+export async function restoreBackup(file: File) {
+  const body = new FormData(); body.append('backup', file);
+  const response = await authFetch(`${API_BASE_URL}/api/backups/restore`, { method: 'POST', body });
+  const data = await response.json().catch(() => null);
+  if (!response.ok) throw new Error(data?.message || 'Unable to restore backup.');
+  return data as { message: string };
+}
 
 export async function downloadBackup(name: string) {
   const response = await authFetch(`${API_BASE_URL}/api/backups/${encodeURIComponent(name)}/download`);
