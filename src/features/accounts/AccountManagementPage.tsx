@@ -1089,6 +1089,8 @@ function AccountManagement() {
                     Email
                   </th>
 
+                  <th className="px-4 py-3 font-semibold">Phone</th>
+
                   <th className="px-4 py-3 font-semibold">
                     Role
                   </th>
@@ -1128,6 +1130,8 @@ function AccountManagement() {
                       <td className="max-w-[230px] px-4 py-3 text-[#666] break-words">
                         {account.email}
                       </td>
+
+                      <td className="px-4 py-3 text-[#666]">{account.phone || '-'}</td>
 
 
                       <td className="px-4 py-3">

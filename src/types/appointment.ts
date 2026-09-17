@@ -22,6 +22,7 @@ export interface Appointment {
   status: AppointmentStatus | string;
   customerName?: string | null;
   customerEmail?: string | null;
+  customerPhone?: string | null;
   customerShopArea?: string | null;
   employeeName?: string | null;
   employeeEmail?: string | null;

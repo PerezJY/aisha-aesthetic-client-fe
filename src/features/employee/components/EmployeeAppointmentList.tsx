@@ -67,6 +67,9 @@ function EmployeeAppointmentList({
                       <p className="text-xs text-gray-500">
                         {appointment.customerEmail || 'No email available'}
                       </p>
+                      <p className="text-xs text-gray-500">
+                        {appointment.customerPhone || 'No phone available'}
+                      </p>
                     </div>
                   </div>
                 </td>

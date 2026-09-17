@@ -23,6 +23,7 @@ export interface LoginCredentials {
 // =========================================================
 
 export interface SignupPayload {
+  phone: string;
   name: string;
   email: string;
   password: string;

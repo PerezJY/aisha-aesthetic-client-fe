@@ -7,6 +7,7 @@ export interface User {
   role: UserRole | string;
   shopArea?: string;
   status?: string;
+  phone?: string | null;
 }
 
 export interface Employee extends User {

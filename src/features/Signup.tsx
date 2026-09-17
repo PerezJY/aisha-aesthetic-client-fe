@@ -1,5 +1,5 @@
 import BrandLogo from '../components/BrandLogo';
-import { LockKeyhole, Mail, User, X } from 'lucide-react';
+import { LockKeyhole, Mail, Phone, User, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getCustomerTerms, signup } from '../api/auth.api';
@@ -60,6 +60,7 @@ function Signup() {
 
     const name = String(form.get('name') || '');
     const email = String(form.get('email') || '');
+    const phone = String(form.get('phone') || '');
     const password = String(form.get('password') || '');
     const confirmPassword = String(form.get('confirmPassword') || '');
 
@@ -75,6 +76,7 @@ function Signup() {
       await signup({
         name,
         email,
+        phone,
         password,
         confirmPassword,
         acceptedTerms: accepted,
@@ -179,6 +181,15 @@ function Signup() {
                 className="input-field pl-11"
                 required
               />
+            </div>
+          </div>
+
+          {/* Phone */}
+          <div>
+            <label className="mb-2 block text-sm font-medium text-[#5c444b]">Phone Number</label>
+            <div className="relative">
+              <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b49aa2]" />
+              <input type="tel" name="phone" autoComplete="tel" maxLength={30} placeholder="09XXXXXXXXX" className="input-field pl-11" required />
             </div>
           </div>
 

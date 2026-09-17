@@ -69,6 +69,10 @@ function EmployeeAppointmentDetailsModal({
               <Mail size={15} />
               <span>{appointment.customerEmail || 'No email available'}</span>
             </div>
+            <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
+              <span aria-hidden="true">☎</span>
+              <span>{appointment.customerPhone || 'No phone available'}</span>
+            </div>
             {appointment.customerShopArea && (
               <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
                 <MapPin size={15} />
