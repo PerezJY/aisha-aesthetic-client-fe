@@ -10,12 +10,18 @@ export interface DatabaseBackup {
 export interface BackupStatus {
   backups: DatabaseBackup[];
   enabled: boolean;
+  frequency: BackupFrequency | null;
   intervalHours: number;
   retentionCount: number;
   busy: boolean;
   lastError: string | null;
   nextBackupAt: string | null;
 }
+
+export type BackupFrequency = 'daily' | 'weekly' | 'monthly' | 'yearly';
+export interface BackupSchedule { enabled: boolean; frequency: BackupFrequency }
+export const saveBackupSchedule = (schedule: BackupSchedule) =>
+  apiRequest<BackupSchedule>('/api/backups/schedule', { method: 'PUT', body: schedule });
 
 export const getBackups = () => apiRequest<BackupStatus>('/api/backups');
 export const createBackup = () => apiRequest<DatabaseBackup>('/api/backups', { method: 'POST' });

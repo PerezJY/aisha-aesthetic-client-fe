@@ -3,6 +3,7 @@ import { Alert, Button, Chip, CircularProgress, InputAdornment, LinearProgress, 
 import { Archive, ArrowDownToLine, CalendarClock, Check, ChevronDown, Clock3, Database, FileArchive, HardDrive, Info, Plus, RefreshCw, Search, ShieldCheck } from 'lucide-react';
 import { createBackup, downloadBackup, getBackups, restoreBackup } from '../../api/backups.api';
 import type { BackupStatus } from '../../api/backups.api';
+import BackupScheduleSettings from './components/BackupScheduleSettings';
 
 const theme = createTheme({
   palette: { primary: { main: '#ad5871' }, text: { primary: '#49343a', secondary: '#876f77' } },
@@ -145,7 +146,7 @@ export default function DatabaseBackupsPage() {
 
       <section aria-label="Backup schedule" className="grid gap-4 md:grid-cols-3">
         {[
-          { icon: <RefreshCw size={18} />, label: 'Automatic schedule', value: status ? status.enabled ? `Every ${status.intervalHours} hours` : 'Turned off' : 'Unavailable', note: 'Runs while your server is online.' },
+          { icon: <RefreshCw size={18} />, label: 'Automatic schedule', value: status ? status.enabled ? status.frequency ? ({ daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', yearly: 'Yearly' }[status.frequency]) : `Every ${status.intervalHours} hours` : 'Turned off' : 'Unavailable', note: 'Runs while your server is online.' },
           { icon: <CalendarClock size={18} />, label: 'Next scheduled backup', value: status ? !status.enabled ? 'Not scheduled' : status.nextBackupAt ? `${dateLabel(status.nextBackupAt)} · ${timeLabel(status.nextBackupAt)}` : 'Due now' : 'Unavailable', note: 'Missed runs catch up when the server starts.' },
           { icon: <Archive size={18} />, label: 'Retention policy', value: status ? `${status.retentionCount} copies per type` : 'Unavailable', note: 'Manual and automatic copies are kept separately.' },
         ].map(item => <div key={item.label} className="rounded-2xl border border-[#efe3e7] bg-white p-5">
@@ -154,6 +155,12 @@ export default function DatabaseBackupsPage() {
           <p className="mt-2 text-xs leading-relaxed text-[#967f87]">{item.note}</p>
         </div>)}
       </section>
+
+      {status && <BackupScheduleSettings status={status} onSaved={settings => {
+        refreshVersion.current.version++;
+        setStatus(current => current ? { ...current, ...settings } : current);
+        void refresh();
+      }} />}
 
       <section className="overflow-hidden rounded-3xl border border-[#efe3e7] bg-white shadow-[0_4px_24px_-16px_rgba(85,44,59,0.2)]" aria-labelledby="backup-history-title">
         <div className="flex items-center justify-between gap-3 px-5 pb-4 pt-6 sm:px-6">
