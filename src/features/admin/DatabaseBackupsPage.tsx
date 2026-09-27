@@ -18,6 +18,7 @@ const dateLabel = (value: string) => new Date(value).toLocaleDateString(undefine
 const timeLabel = (value: string) => new Date(value).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
 const sizeLabel = (bytes: number) => bytes >= 1048576 ? `${(bytes / 1048576).toFixed(1)} MB` : `${(bytes / 1024).toFixed(1)} KB`;
 type Filter = 'all' | 'automatic' | 'manual';
+const backupActionSx = { width: 180, height: 48, px: 2.5, py: 1.4 };
 
 export default function DatabaseBackupsPage() {
   const [status, setStatus] = useState<BackupStatus | null>(null);
@@ -99,10 +100,10 @@ export default function DatabaseBackupsPage() {
           <h1 className="page-title">Database Backups</h1>
           <p className="page-subtitle">Keeping your data safe and protected</p>
         </div>
-        <div className="flex flex-wrap gap-2"><Button component="label" variant="outlined" disabled={busy || restoring || loading} startIcon={restoring ? <CircularProgress size={16} /> : <ArrowDownToLine size={17} />}>
+        <div className="flex flex-wrap items-center gap-2"><Button component="label" variant="outlined" sx={backupActionSx} disabled={busy || restoring || loading} startIcon={restoring ? <CircularProgress size={16} /> : <ArrowDownToLine size={17} />}>
           {restoring ? 'Restoring…' : 'Restore backup'}<input hidden type="file" accept=".sqlite,application/vnd.sqlite3,application/octet-stream" onChange={handleRestore} />
         </Button><Button variant="contained" startIcon={busy ? <CircularProgress size={16} color="inherit" /> : <Plus size={18} />}
-          onClick={() => void handleCreate()} disabled={loading || busy || !status} sx={{ mt: { xs: 0, sm: 2 }, px: 2.5, py: 1.4 }}>
+          onClick={() => void handleCreate()} disabled={loading || busy || !status} sx={backupActionSx}>
           {busy ? 'Creating backup…' : 'Create backup'}
         </Button></div>
       </header>
